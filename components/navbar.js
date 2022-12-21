@@ -7,9 +7,9 @@ export default function Navbar({ theme, toggleTheme }) {
     <nav className='split'>
       <Link
         href='/'
-        //className={({ isActive }) =>
-        //'nav-link' + (isActive ? ' active' : '')
-        //}
+        // className={({ isActive }) =>
+        //   'nav-link' + (isActive ? ' active' : '')
+        // }
       >
         Github Battle
       </Link>
@@ -17,9 +17,9 @@ export default function Navbar({ theme, toggleTheme }) {
         <li>
           <Link
             href='/'
-            //className={({ isActive }) =>
-            //'nav-link' + (isActive ? ' active' : '')
-            //}
+            // className={({ isActive }) =>
+            //   'nav-link' + (isActive ? ' active' : '')
+            // }
           >
             Popular
           </Link>
@@ -27,9 +27,9 @@ export default function Navbar({ theme, toggleTheme }) {
         <li>
           <Link
             href='/battle'
-            //className={({ isActive }) =>
-            //'nav-link' + (isActive ? ' active' : '')
-            //}
+            // className={({ isActive }) =>
+            //   'nav-link' + (isActive ? ' active' : '')
+            // }
           >
             Battle
           </Link>
@@ -47,7 +47,9 @@ export default function Navbar({ theme, toggleTheme }) {
   );
 }
 
+/*
 Navbar.propTypes = {
   theme: PropTypes.string.isRequired,
   toggleTheme: PropTypes.func.isRequired,
 };
+*/

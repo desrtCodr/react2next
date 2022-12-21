@@ -113,7 +113,7 @@ export default class Battle extends React.Component {
           <Link
             href={{
               pathname: '/results',
-              search: `?playerOne=${playerOne}&playerTwo=${playerTwo}`,
+              query: `playerOne=${playerOne}&playerTwo=${playerTwo}`,
             }}
             className={`btn primary ${disabled ? 'disabled' : ''}`}
           >

@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { battle } from '../pages/api/api';
 import PropTypes from 'prop-types';
-import Loading from './Loading';
+import Loading from '../components/Loading';
+import withSearchParams from '../components/withSearchParams';
 import Link from 'next/link';
 
 function Card({ profile }) {
@@ -70,7 +71,7 @@ Card.propTypes = {
   }).isRequired,
 };
 
-export default class Results extends React.Component {
+class Results extends React.Component {
   state = {
     winner: null,
     loser: null,
@@ -78,9 +79,7 @@ export default class Results extends React.Component {
     loading: true,
   };
   componentDidMount() {
-    const sp = this.props.router.searchParams;
-    const playerOne = sp.get('playerOne');
-    const playerTwo = sp.get('playerTwo');
+    const { playerOne, playerTwo } = this.props.router;
 
     battle([playerOne, playerTwo])
       .then((players) => {
@@ -148,3 +147,4 @@ export default class Results extends React.Component {
     );
   }
 }
+export default withSearchParams(Results);
