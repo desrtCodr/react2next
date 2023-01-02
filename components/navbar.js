@@ -1,15 +1,16 @@
 import Link from 'next/link';
-import PropTypes from 'prop-types';
 import { sunIcon, moonIcon } from './icons';
+import { useRouter } from 'next/router';
 
 export default function Navbar({ theme, toggleTheme }) {
+  const router = useRouter();
   return (
     <nav className='split'>
       <Link
         href='/'
-        // className={({ isActive }) =>
-        //   'nav-link' + (isActive ? ' active' : '')
-        // }
+        className={
+          router.pathname == '/' ? 'nav-link active' : 'nav-link'
+        }
       >
         Github Battle
       </Link>
@@ -17,9 +18,9 @@ export default function Navbar({ theme, toggleTheme }) {
         <li>
           <Link
             href='/'
-            // className={({ isActive }) =>
-            //   'nav-link' + (isActive ? ' active' : '')
-            // }
+            className={
+              router.pathname == '/' ? 'nav-link active' : 'nav-link'
+            }
           >
             Popular
           </Link>
@@ -27,9 +28,11 @@ export default function Navbar({ theme, toggleTheme }) {
         <li>
           <Link
             href='/battle'
-            // className={({ isActive }) =>
-            //   'nav-link' + (isActive ? ' active' : '')
-            // }
+            className={
+              router.pathname == '/battle'
+                ? 'nav-link active'
+                : 'nav-link'
+            }
           >
             Battle
           </Link>
@@ -46,10 +49,3 @@ export default function Navbar({ theme, toggleTheme }) {
     </nav>
   );
 }
-
-/*
-Navbar.propTypes = {
-  theme: PropTypes.string.isRequired,
-  toggleTheme: PropTypes.func.isRequired,
-};
-*/
