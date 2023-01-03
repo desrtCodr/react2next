@@ -9,7 +9,7 @@ export default function Navbar({ theme, toggleTheme }) {
       <Link
         href='/'
         className={
-          router.pathname == '/' ? 'nav-link active' : 'nav-link'
+          router.pathname === '/' ? 'nav-link active' : 'nav-link'
         }
       >
         Github Battle
@@ -19,7 +19,7 @@ export default function Navbar({ theme, toggleTheme }) {
           <Link
             href='/'
             className={
-              router.pathname == '/' ? 'nav-link active' : 'nav-link'
+              router.pathname === '/' ? 'nav-link active' : 'nav-link'
             }
           >
             Popular
@@ -29,7 +29,7 @@ export default function Navbar({ theme, toggleTheme }) {
           <Link
             href='/battle'
             className={
-              router.pathname == '/battle'
+              router.pathname === '/battle'
                 ? 'nav-link active'
                 : 'nav-link'
             }

@@ -4,8 +4,10 @@ import PropTypes from 'prop-types';
 import Loading from '../components/Loading';
 import withSearchParams from '../components/withSearchParams';
 import Link from 'next/link';
+import ThemeContext from '../contexts/theme';
 
 function Card({ profile }) {
+  const { theme } = React.useContext(ThemeContext);
   const {
     login,
     avatar_url,
@@ -18,7 +20,7 @@ function Card({ profile }) {
   } = profile;
 
   return (
-    <div className='card bg-light'>
+    <div className={`card bg-${theme}`}>
       <header className='split'>
         <div>
           <h4>
@@ -70,81 +72,94 @@ Card.propTypes = {
     company: PropTypes.string,
   }).isRequired,
 };
+function resultsReducer(state, action) {
+  if (action.type === 'success') {
+    return {
+      winner: action.winner,
+      loser: action.loser,
+      error: null,
+      loading: false,
+    };
+  } else if (action.type === 'error') {
+    return {
+      error: action.message,
+    };
+  } else {
+    throw new Error('This action type is not supported');
+  }
+}
 
-class Results extends React.Component {
-  state = {
+function Results({ router }) {
+  const [state, dispatch] = React.useReducer(resultsReducer, {
     winner: null,
     loser: null,
     error: null,
     loading: true,
-  };
-  componentDidMount() {
-    const { playerOne, playerTwo } = this.props.router;
-
+  });
+  const { playerOne, playerTwo } = router;
+  React.useEffect(() => {
     battle([playerOne, playerTwo])
       .then((players) => {
-        this.setState({
+        dispatch({
+          type: 'success',
           winner: players[0],
           loser: players[1],
-          error: null,
-          loading: false,
         });
       })
       .catch(({ message }) => {
-        this.setState({
-          error: message,
-          loading: false,
+        dispatch({
+          type: 'error',
+          message,
         });
       });
+  }, [playerOne, playerTwo]);
+  const { winner, loser, error, loading } = state;
+
+  if (loading === true) {
+    return <Loading />;
   }
-  render() {
-    const { winner, loser, error, loading } = this.state;
 
-    if (loading === true) {
-      return <Loading text='Battling' />;
-    }
-
-    if (error) {
-      return <p className='text-center error'>{error}</p>;
-    }
-
-    return (
-      <main className='animate-in stack main-stack'>
-        <div className='split'>
-          <h1>Results</h1>
-          <Link href='/battle' className='btn secondary'>
-            Reset
-          </Link>
-        </div>
-        <section className='grid'>
-          <article>
-            <Card profile={winner.profile} />
-            <p className='results'>
-              <span>
-                {winner.score === loser.score ? 'Tie' : 'Winner'}{' '}
-                {winner.score.toLocaleString()}
-              </span>
-              {winner.score !== loser.score && (
-                <img
-                  width={80}
-                  src='https://ui.dev/images/certificate.svg'
-                  alt='certificate'
-                />
-              )}
-            </p>
-          </article>
-          <article>
-            <Card profile={loser.profile} />
-            <p className='results'>
-              <span>
-                {winner.score === loser.score ? 'Tie' : 'Loser'}{' '}
-                {loser.score.toLocaleString()}
-              </span>
-            </p>
-          </article>
-        </section>
-      </main>
-    );
+  if (error) {
+    return <p className='text-center error'>{error}</p>;
   }
+
+  return (
+    <main className='animate-in stack main-stack'>
+      <div className='split'>
+        <h1>Results</h1>
+        <Link href='/battle' className='btn secondary'>
+          Reset
+        </Link>
+      </div>
+      <section className='grid'>
+        <article>
+          <Card profile={winner.profile} />
+          <p className='results'>
+            <span>
+              {winner.score === loser.score ? 'Tie' : 'Winner'}{' '}
+              {winner.score.toLocaleString()}
+            </span>
+            {winner.score !== loser.score && (
+              <img
+                width={80}
+                src='https://ui.dev/images/certificate.svg'
+                alt='certificate'
+              />
+            )}
+          </p>
+        </article>
+        <article>
+          <Card profile={loser.profile} />
+          <p className='results'>
+            <span>
+              {winner.score === loser.score ? 'Tie' : 'Loser'}{' '}
+              {loser.score.toLocaleString()}
+            </span>
+          </p>
+        </article>
+      </section>
+    </main>
+  );
 }
+
 export default withSearchParams(Results);

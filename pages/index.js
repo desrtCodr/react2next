@@ -1,6 +1,5 @@
 import Head from 'next/head';
 import Popular from '../components/Popular';
-import { useRouter } from 'next/router';
 
 export default function Home() {
   return (
