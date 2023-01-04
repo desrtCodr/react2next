@@ -8,9 +8,7 @@ export default function withSearchParams(Component) {
     const query = router.query;
 
     return (
-      <>
         <Component {...props} router={query} />
-      </>
     );
   };
 }
