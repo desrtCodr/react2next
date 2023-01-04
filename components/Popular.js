@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { fetchPopularRepos } from '../pages/api/api';
 import Table from './Table';
+import Loading from './Loading';
 
 function LanguagesNav({ selected, onUpdateLanguage }) {
   const languages = [
@@ -32,61 +33,74 @@ LanguagesNav.propTypes = {
   selected: PropTypes.string.isRequired,
   onUpdateLanguage: PropTypes.func.isRequired,
 };
+function popularReducer(state, action) {
+  if (action.type === 'success') {
+    return {
+      ...state,
+      [action.selectedLanguage]: action.repos,
+      error: null,
+    };
+  } else if (action.type === 'error') {
+    return {
+      ...state,
+      error: action.error.message,
+    };
+  } else {
+    throw new Error('This action type is not supported.');
+  }
+}
 
-export default class Popular extends React.Component {
-  //constructor: lifecyle method good for setting initial state and props, binding functions to correct context
-  state = {
-    selectedLanguage: 'All',
+export default function Popular() {
+  const [selectedLanguage, setSelectedLanguage] =
+    React.useState('All');
+  const [state, dispatch] = React.useReducer(popularReducer, {
     repos: null,
     error: null,
-  };
-  //compponentDidMount: invoked once the component mounts to the DOM. Good for AJAX requests, setting up listeneres
-  componentDidMount() {
-    //fetch Repos with selected language, but do that with the updateLanguage method
-    this.updateLanguage(this.state.selectedLanguage);
-  }
-  //componenetDidUpdate: invoked immediately after updating occurs. Good for AJAX requests based on changing props or DOM operatations
-  componentDidUpdate() {}
-  //componentWillUnmount: called right before a component is unmounnted. good for cleaning up listeners.
-  componentWillUnmount() {}
-  updateLanguage = (selectedLanguage) => {
-    this.setState({
-      selectedLanguage,
-      error: null,
-    });
-    fetchPopularRepos(selectedLanguage)
-      .then((repos) =>
-        this.setState({
-          repos,
-          error: null,
+  });
+  const repoRef = React.useRef([]);
+
+  React.useEffect(() => {
+    if (repoRef.current.includes(selectedLanguage) === false) {
+      repoRef.current.push(selectedLanguage);
+
+      fetchPopularRepos(selectedLanguage)
+        .then((repos) => {
+          console.log(repos);
+          dispatch({
+            type: 'success',
+            selectedLanguage,
+            repos,
+          });
         })
-      )
-      .catch((error) => {
-        console.warn('Error fetching repos: ', error);
-
-        this.setState({
-          error: `There was an error fetching the repositories`,
+        .catch((error) => {
+          dispatch({
+            type: 'error',
+            error,
+          });
         });
-      });
-  };
-  //render: lifecyle method describing (with JSX) the DOM node you want to render.
-  //This is a pure function - should only examine state and props and return the description of the UI
-  render() {
-    const { selectedLanguage, repos, error } = this.state;
-    return (
-      <main className='stack main-stack animate-in'>
-        <div className='split'>
-          <h1>Popular</h1>
-          <LanguagesNav
-            selected={selectedLanguage}
-            onUpdateLanguage={this.updateLanguage}
-          />
-        </div>
+    }
+  }, [repoRef, selectedLanguage]);
 
-        {error && <p className='text-center error'>{error}</p>}
+  const isLoading = () =>
+    !state[selectedLanguage] && state.error === null;
 
-        {repos && <Table repos={repos} />}
-      </main>
-    );
-  }
+  return (
+    <main className='stack main-stack animate-in'>
+      <div className='split'>
+        <h1>Popular</h1>
+        <LanguagesNav
+          selected={selectedLanguage}
+          onUpdateLanguage={setSelectedLanguage}
+        />
+      </div>
+      {isLoading() && <Loading text='Fetching Repos' />}
+      {state.error && (
+        <p className='text-center error'>{state.error}</p>
+      )}
+
+      {state[selectedLanguage] && (
+        <Table repos={state[selectedLanguage]} />
+      )}
+    </main>
+  );
 }

@@ -1,5 +1,4 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 
 const styles = {
   fontSize: '14px',
@@ -9,64 +8,35 @@ const styles = {
   marginTop: '20px',
   textAlign: 'center',
 };
+function Delayed({ wait = 2000 }) {
+  const [show, setShow] = React.useState(false);
 
-class Delayed extends Component {
-  state = { show: false };
-  componentDidMount() {
-    this.timeout = window.setTimeout(() => {
-      this.setState({
-        show: true,
-      }),
-        this.props.wait;
-    });
-  }
-  componentWillUnmount() {
-    window.clearTimeout(this.timeout);
-  }
-  render() {
-    return this.state.show === true ? this.props.children : null;
-  }
+  React.useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      setShow(true);
+    }, wait);
+    return () => window.clearTimeout(timeout);
+  }, [show]);
+  return show === true ? props.children : null;
 }
 
-Delayed.defaultProps = { wait: 500 };
+export default function Loading({ text = 'Loading', speed = 300 }) {
+  const [content, setContent] = React.useState(text);
 
-Delayed.propTypes = {
-  children: PropTypes.node.isRequired,
-  wait: PropTypes.number,
-};
-export default class Loading extends Component {
-  state = {
-    content: this.props.text,
-  };
-  componentDidMount() {
-    const { speed, text } = this.props;
-
-    this.interval = window.setInterval(() => {
-      this.state.content === text + '...'
-        ? this.setState({ content: text })
-        : this.setState(({ content }) => ({
-            content: content + '.',
-          }));
+  React.useEffect(() => {
+    const timer = window.setInterval(() => {
+      setContent((content) => {
+        return content === `${text}...` ? text : `${content}.`;
+      });
     }, speed);
-  }
-  componentWillUnmount() {
-    window.clearInterval(this.interval);
-  }
-  render() {
-    return (
-      <Delayed>
-        <p style={styles}>{this.state.content}</p>
-      </Delayed>
-    );
-  }
+
+    return () => window.clearInterval(timer);
+  }, [content]);
+
+  return (
+    //unable to get children to display when using Delayed
+    //<Delayed>
+    <p style={styles}>{content}</p>
+    //</Delayed>
+  );
 }
-
-Loading.propTypes = {
-  text: PropTypes.string.isRequired,
-  speed: PropTypes.number,
-};
-
-Loading.defaultProps = {
-  text: 'Loading',
-  speed: 300,
-};
